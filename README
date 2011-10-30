@@ -1,0 +1,5 @@
+
+./scripts/mvn-install.sh
+mvn clean install
+./scripts/game.sh
+
