@@ -70,10 +70,10 @@ public class Ozzy implements Ant
   Coord _absolutePos = Coord.ORIGIN.clone();
   List<Direction> _directions = DirectionHelper.createDirectionList();
 
-  int _minX = -64;
-  int _minY = -64;
-  int _maxX = 64;
-  int _maxY = 64;
+  int _minX = -512;
+  int _minY = -512;
+  int _maxX = 512;
+  int _maxY = 512;
 
   public Integer getMode()
   {
@@ -646,7 +646,8 @@ public class Ozzy implements Ant
 
       float dist = MapUtils.getDistance(_startPos, _globalKnowledge.getPosition());
 
-      double waypointDist = Math.max(Math.min(30, _globalKnowledge.getObstacleDensity() * 100), 16);
+//      double waypointDist = Math.max(Math.min(30, _globalKnowledge.getObstacleDensity() * 100), 16);
+      double waypointDist = 24;
       if (dist > (_middleSettlers + 1) * waypointDist)  // 30 also works well, but is sparser
       {
         _middleSettlers++;
