@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>amaitjo</groupId>
+  <artifactId>amaitjo</artifactId>
+  <version>1.0.0</version>
+  <name>amaitjo</name>
+  <packaging>jar</packaging>
+  <description>
+    A solution to the LinkedIn ant colony simulator.
+  </description>
+  <url>https://github.com/briangu/amaitjo</url>
+
+  <developers>
+    <developer>
+      <id>briangu</id>
+      <name>Brian Guarraci</name>
+      <email>brian@ops5.com</email>
+      <url>http://eismcc.com</url>
+      <timezone>-8</timezone>
+    </developer>
+    <developer>
+      <id>rbhide</id>
+      <name>Ravi Bhide</name>
+      <timezone>-8</timezone>
+    </developer>
+    <developer>
+      <id>jbetz</id>
+      <name>Joe Betz</name>
+      <timezone>-8</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>
+        http://www.opensource.org/licenses/mit-license.php
+      </url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <dependencies>
+    <dependency>
+      <groupId>amaitjo</groupId>
+      <artifactId>amaitjo.tools</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>3.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.linkedin.contest.ants.api</groupId>
+      <artifactId>ants-api</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20090211</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>amaitjo.Main</mainClass>
+              <packageName>amaitjo</packageName>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+           <execution>
+             <phase>package</phase>
+             <goals>
+               <goal>single</goal>
+             </goals>
+           </execution>
+         </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,2 @@
+nohup java -Xmx8192m -jar target/amaitjo-1.0.0-jar-with-dependencies.jar worker >> worker.out 2>&1 &
+
