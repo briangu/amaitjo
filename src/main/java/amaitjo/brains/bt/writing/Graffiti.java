@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 
 public class Graffiti
 {
-  public double FOOD_PHEROMONE_DECAY_PER_TURN = MAX_PHEROMONE / 16000.0f;   // % of pheromone lost per turn
+  public double FOOD_PHEROMONE_DECAY_PER_TURN = MAX_PHEROMONE / 8000.0f;   // % of pheromone lost per turn
   public static int MAX_PHEROMONE = 4095;
   public static int MAX_TURNS = 100000;
 
