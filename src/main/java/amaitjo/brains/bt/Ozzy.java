@@ -70,10 +70,10 @@ public class Ozzy implements Ant
   Coord _absolutePos = Coord.ORIGIN.clone();
   List<Direction> _directions = DirectionHelper.createDirectionList();
 
-  int _minX = -512;
-  int _minY = -512;
-  int _maxX = 512;
-  int _maxY = 512;
+  int _minX = -64;
+  int _minY = -64;
+  int _maxX = 64;
+  int _maxY = 64;
 
   public Integer getMode()
   {
@@ -438,7 +438,7 @@ public class Ozzy implements Ant
 
     private boolean tooFarFromNest(Direction d)
     {
-      double div = _maxPioneerDistance / Math.max(9, (11 * (_turn / 100000))); //3.141592;
+      double div = _maxPioneerDistance / Math.max(6, (8 * (_turn / 100000))); //3.141592;
       return _relPos.createFromAdd(d).DistanceFromNest() > div;
     }
 
@@ -505,17 +505,6 @@ public class Ozzy implements Ant
     }
   }
 
-  private int getMaxPioneerDistance()
-  {
-    return _maxPioneerDistance;
-//    if (_groupId == 0) return _maxPioneerDistance;
-//    return (_turn < 5000) ? 50 : _maxPioneerDistance;
-//    return (int) Math.max(_earlyDropDistance+3, _maxPioneerDistance * (1 - ((_turn / 8.0)  / 100000.0)));
-//    return (int) Math.min(100, Math.abs(Math.sin(_turn) * _maxPioneerDistance));
-//    return (int) Math.min(_maxPioneerDistance * (1 - _turn / 100000.0), _maxPioneerDistance / 2);
-//    return _maxPioneerDistance;
-  }
-
   private static class EnemySighting
   {
     Direction _direction;
@@ -530,16 +519,25 @@ public class Ozzy implements Ant
 
   private class ReverseSettler extends NestContext
   {
-    Stack<Direction> _toFood = new Stack<Direction>();
     Stack<Direction> _toNest = new Stack<Direction>();
+    Stack<Direction> _toFood = new Stack<Direction>();
     boolean _haveFood = false;
     boolean _done = false;
+    boolean _rewind = false;
 
     @Override
     public void act(Environment environment, List<WorldEvent> events)
     {
       _graffiti = createGraffitiMap();
       _curSquare = _environment.getSquare(Direction.here);
+
+      if (_rewind)
+      {
+        _rewind = false;
+        _haveFood = true;
+        _actionStack.push(new GetFood(Direction.here));
+        return;
+      }
 
       if (_haveFood || _done)
       {
@@ -595,9 +593,10 @@ public class Ozzy implements Ant
   public void generatePioneerTargets()
   {
     _pioneerTargets.clear();
-    for (int i = 0; i < 1024; i += 32)
+    int stride = 64;
+    for (int i = 0; i < 1024; i += stride)
     {
-      for (int j = 0; j < 1024; j += 32)
+      for (int j = 0; j < 1024; j += stride)
       {
         _pioneerTargets.add(new Point(i - 512,j - 512));
       }
@@ -632,6 +631,7 @@ public class Ozzy implements Ant
     int _middleSettlers = 0;
     Point _target;
     Point _startPos = _globalKnowledge.getPosition();
+    Stack<Direction> _toNest = new Stack<Direction>();
 
     public Pioneer()
     {
@@ -647,7 +647,7 @@ public class Ozzy implements Ant
       float dist = MapUtils.getDistance(_startPos, _globalKnowledge.getPosition());
 
 //      double waypointDist = Math.max(Math.min(30, _globalKnowledge.getObstacleDensity() * 100), 16);
-      double waypointDist = 24;
+      double waypointDist = dist < 64 ? 64 : 24;
       if (dist > (_middleSettlers + 1) * waypointDist)  // 30 also works well, but is sparser
       {
         _middleSettlers++;
@@ -656,6 +656,9 @@ public class Ozzy implements Ant
 
         ReverseSettler settler = (ReverseSettler) _generators.peek();
         settler.setPos(_relPos);
+        settler._toNest = _toNest;
+        settler._rewind = true;
+        _toNest = new Stack<Direction>();
 
         _relPos = Coord.ORIGIN.clone();
         _startPos = _globalKnowledge.getPosition();
@@ -675,6 +678,8 @@ public class Ozzy implements Ant
         // we need this to tell the underlying nest context where it is when we pop the later contexts
         ReverseSettler settler = (ReverseSettler) _generators.peek();
         settler.setPos(_relPos);
+        settler._toNest = _toNest;
+        settler._rewind = true;
 
         _graffiti = createGraffitiMap();
         Graffiti nestGraffiti = _graffiti.get(Direction.here);
@@ -697,6 +702,7 @@ public class Ozzy implements Ant
       Direction bestDir = _onStar.advise(_globalKnowledge.getPosition(), _target, _globalKnowledge.getMap(), _walkHistory);
       if (bestDir != null)
       {
+        _toNest.push(DirectionHelper.getOppositeDirection(bestDir));
         _actionStack.push(new Move(bestDir));
       }
       else
