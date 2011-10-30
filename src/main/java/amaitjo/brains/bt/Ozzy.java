@@ -75,6 +75,8 @@ public class Ozzy implements Ant
   int _maxX = 64;
   int _maxY = 64;
 
+  Point _target = null;
+
   public Integer getMode()
   {
     if (_generators.peek() instanceof Settler) return 1;
@@ -593,7 +595,7 @@ public class Ozzy implements Ant
   public void generatePioneerTargets()
   {
     _pioneerTargets.clear();
-    int stride = 64;
+    int stride = 32;
     for (int i = 0; i < 1024; i += stride)
     {
       for (int j = 0; j < 1024; j += stride)
@@ -629,19 +631,20 @@ public class Ozzy implements Ant
   {
     int _pioneeringSteps = 0;
     int _middleSettlers = 0;
-    Point _target;
+//    Point _target;
     Point _startPos = _globalKnowledge.getPosition();
     Stack<Direction> _toNest = new Stack<Direction>();
 
     public Pioneer()
     {
-      _target = getNewTarget();
-      _maxPioneeringSteps = (MapUtils.getDistance(_globalKnowledge.getPosition(), _target) * 3);
     }
 
     @Override
     public void act(Environment environment, List<WorldEvent> events)
     {
+      _target = _target == null ? getNewTarget() : _target;
+      _maxPioneeringSteps = (MapUtils.getDistance(_globalKnowledge.getPosition(), _target) * 3);
+
       _curSquare = _environment.getSquare(Direction.here);
 
       float dist = MapUtils.getDistance(_startPos, _globalKnowledge.getPosition());
@@ -682,11 +685,12 @@ public class Ozzy implements Ant
         settler._rewind = true;
 
         _graffiti = createGraffitiMap();
+/*
         Graffiti nestGraffiti = _graffiti.get(Direction.here);
         nestGraffiti.isSettlerNest = true;
         _actionStack.push(new Write(nestGraffiti.write()));
         info("Wrote nest location to square");
-
+*/
         if (!shutdown())
         {
           _generators.push(new Settler());
@@ -752,11 +756,20 @@ public class Ozzy implements Ant
     }
   }
 
+  int _visitors = 0;
+
   private class Oracle extends NestContext
   {
     @Override
     public void act(Environment environment, List<WorldEvent> events)
     {
+      _visitors += environment.getSquare(Direction.here).getNumberOfAnts() - 1;
+      if ((_visitors > 5) || (_target == null))
+      {
+        _visitors = 0;
+        _target = getNewTarget();
+      }
+
       for (WorldEvent event : events)
       {
         String msg = event.getEvent();
@@ -784,12 +797,13 @@ public class Ozzy implements Ant
 
       String msg =
           String.format(
-              "%s%s,%s,%s,%s",
+              "%s%s,%s,%s,%s,%s",
               MSG_ORACLE_PREFIX,
               _minX,
               _minY,
               _maxX,
-              _maxY);
+              _maxY,
+              _target.serialize());
       _actionStack.push(new Say(msg, Direction.here));
     }
   }
@@ -818,6 +832,8 @@ public class Ozzy implements Ant
             _minY = Integer.parseInt(parts[1]);
             _maxX = Integer.parseInt(parts[2]);
             _maxY = Integer.parseInt(parts[3]);
+
+            _target = (_turn > 20000) ? Point.deserialize(Integer.parseInt(parts[4])) : null;
 
             enlightened = true;
             break;
@@ -851,6 +867,7 @@ public class Ozzy implements Ant
     double MIN_DF = 0.50;
     int dfWindow = 70;
     boolean _returning = false;
+    int _maxWrites = 200;
 
     private void ReturnToNest()
     {
@@ -859,7 +876,15 @@ public class Ozzy implements Ant
         _haveFood = false;
         _orientation = getNeighborWithMaxFoodPheromones();
         _actionStack.push(new DropFood(Direction.here));
-        
+
+        if (!_graffiti.get(Direction.here).isSettlerNest)
+        {
+          Graffiti nestGraffiti = _graffiti.get(Direction.here);
+          nestGraffiti.isSettlerNest = true;
+          _actionStack.push(new Write(nestGraffiti.write()));
+          info("Wrote nest location to square");
+        }
+
         _dropCount++;
         if (_curSquare.isNest())
         {
@@ -873,7 +898,7 @@ public class Ozzy implements Ant
 
       _actionStack.push(new Move(homeDir));
 
-      dropFoodPheromones();
+      if (_maxWrites-- > 0) dropFoodPheromones();
       _orientation = homeDir;
     }
 
@@ -887,6 +912,7 @@ public class Ozzy implements Ant
           && !_curSquare.isNest()
           && !nestGraffiti.isSettlerNest)
       {
+        _maxWrites = 200;
         _haveFood = true;
         if (!atOurRelativeNest()) dropFoodPheromones();
         _actionStack.push(new GetFood(Direction.here));
@@ -968,6 +994,8 @@ public class Ozzy implements Ant
           {
             _generators.pop();
           }
+
+          _actionStack.push(new Write(null));
 
           return;
         }
