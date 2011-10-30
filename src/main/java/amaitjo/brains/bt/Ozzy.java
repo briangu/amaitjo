@@ -643,7 +643,7 @@ public class Ozzy implements Ant
     public void act(Environment environment, List<WorldEvent> events)
     {
       _target = _target == null ? getNewTarget() : _target;
-      _maxPioneeringSteps = (MapUtils.getDistance(_globalKnowledge.getPosition(), _target) * 3);
+      _maxPioneeringSteps = (int) (MapUtils.getDistance(_globalKnowledge.getPosition(), _target) * 3.25);
 
       _curSquare = _environment.getSquare(Direction.here);
 
