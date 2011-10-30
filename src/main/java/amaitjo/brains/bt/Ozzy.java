@@ -146,16 +146,15 @@ public class Ozzy implements Ant
   public Action act(Environment environment, List<WorldEvent> events)
   {
     _turn++;
-
     _environment = environment;
-
-    _globalKnowledge.incrementTime();
-    _globalKnowledge.add(environment);
 
     Action action;
 
     try
     {
+      _globalKnowledge.incrementTime();
+      _globalKnowledge.add(environment);
+
       _graffiti = createGraffitiMap();
 
       // give the ant a chance to react to the environment
