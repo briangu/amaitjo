@@ -596,9 +596,9 @@ public class Ozzy implements Ant
   {
     _pioneerTargets.clear();
     int stride = 32;
-    for (int i = 0; i < 1024; i += stride)
+    for (int i = 0; i < (1024+stride); i += stride)
     {
-      for (int j = 0; j < 1024; j += stride)
+      for (int j = 0; j < (1024+stride); j += stride)
       {
         _pioneerTargets.add(new Point(i - 512,j - 512));
       }
@@ -684,13 +684,6 @@ public class Ozzy implements Ant
         settler._toNest = _toNest;
         settler._rewind = true;
 
-        _graffiti = createGraffitiMap();
-/*
-        Graffiti nestGraffiti = _graffiti.get(Direction.here);
-        nestGraffiti.isSettlerNest = true;
-        _actionStack.push(new Write(nestGraffiti.write()));
-        info("Wrote nest location to square");
-*/
         if (!shutdown())
         {
           _generators.push(new Settler());
