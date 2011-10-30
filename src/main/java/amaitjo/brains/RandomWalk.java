@@ -1,12 +1,9 @@
 package amaitjo.brains;
 
-import amaitjo.Report;
-import amaitjo.ReportingBeacon;
 import amaitjo.common.DirectionHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EmptyStackException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
@@ -50,18 +47,6 @@ public class RandomWalk implements Ant
 
   @Override
   public Action act(Environment environment, List<WorldEvent> worldEvents)
-  {
-
-    Report report = new Report();
-    report.Action = _act(environment, worldEvents);
-    report.Properties = new HashMap<String, String>();
-    report.Properties.put("dropCount", Integer.toString(_dropCount));
-//    ReportingBeacon.getInstance().report(_id, report);
-
-    return report.Action;
-  }
-
-  public Action _act(Environment environment, List<WorldEvent> worldEvents)
   {
     try
     {
