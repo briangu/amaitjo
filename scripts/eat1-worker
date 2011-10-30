@@ -1,2 +1,0 @@
-nohup /export/apps/jdk/JDK-1_6_0_21/bin/java -Xmx8192m -jar dist/amaitjo-1.0.0-jar-with-dependencies.jar worker eat1-app56.corp.linkedin.com:2181 gaga2 pushgp/gaga.pushgp >> worker.out 2>&1 &
-

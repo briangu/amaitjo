@@ -1,8 +1,6 @@
 package amaitjo.brains.bt;
 
 
-import amaitjo.Brain;
-import amaitjo.BrainStore;
 import amaitjo.brains.bt.writing.Graffiti;
 import amaitjo.common.Coord;
 import amaitjo.common.DirectionHelper;
@@ -39,14 +37,12 @@ public class Ozzy implements Ant
   final String MSG_ORACLE_PREFIX = "ORACLE";
   final String MSG_NEO_PREFIX = "NEO";
 
-  private static long MOVE_SAMPLE_RATE = 250;
+  final static long MOVE_SAMPLE_RATE = 250;
 
   int _turn = 0;
 
   int _groupId;
   int _id;
-
-  Point _target;
 
   protected Environment _environment = null;
 
@@ -54,7 +50,7 @@ public class Ozzy implements Ant
   Stack<Action> _actionStack = new Stack<Action>();
   private Map<Direction, Graffiti> _graffiti;
 
-  public static int SECRET = 0x3141;
+  public final static int SECRET = 0x3141;
 
   int _maxPioneerDistance;
   int _maxPioneeringSteps;
@@ -115,13 +111,10 @@ public class Ozzy implements Ant
   @Override
   public void init()
   {
-    final Brain brain = BrainStore.getInstance().find(this.getClass().getName());
-
-    _boardSize = brain != null ? brain.BoardSize : 512;
-
-    _maxPioneerDistance = brain != null ? (int) brain.MaxPioneerDistance : (int) (_boardSize);
-    _maxPioneeringSteps = brain != null ? brain.MaxPioneeringSteps : _maxPioneerDistance * 2;
-    _groupCount = brain != null ? brain.GroupCount : 20;
+    _boardSize = 512;
+    _maxPioneerDistance = _boardSize;
+    _maxPioneeringSteps = _maxPioneerDistance * 2;
+    _groupCount = 20;
 
     _generators.push(new Antnitializer());
   }
@@ -469,6 +462,7 @@ public class Ozzy implements Ant
 //          if (sq.getNumberOfAnts() > 10) continue;
           if (sq.hasAnts()) continue;
           if (tooFarFromNest(directions.get(i))) continue;
+          if (_graffiti.get(directions.get(i)).isSettlerNest) continue;
           int level = sq.hasFood() ? Graffiti.MAX_PHEROMONE : _graffiti.get(directions.get(i)).getDecayedFoodPheromone(_turn);
           double selectionProb = Math.pow(K + level, N);
           testList[i] = selectionProb;

@@ -44,11 +44,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>amaitjo</groupId>
-      <artifactId>amaitjo.tools</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>zookeeper</artifactId>
       <version>3.3.1</version>
